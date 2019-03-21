@@ -1,0 +1,162 @@
+mysql> CREATE DATABASE std_marks;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> USE std_marks;
+Database changed
+
+mysql> CREATE TABLE student (rollno INT PRIMARY KEY, name VARCHAR(20), mark1 INT, mark2 INT, mark3 INT, mark4 INT, mark5 INT, mark6 INT);
+Query OK, 0 rows affected (0.26 sec)
+
+mysql> DESCRIBE student;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| rollno | int(11)     | NO   | PRI | NULL    |       |
+| name   | varchar(20) | YES  |     | NULL    |       |
+| mark1  | int(11)     | YES  |     | NULL    |       |
+| mark2  | int(11)     | YES  |     | NULL    |       |
+| mark3  | int(11)     | YES  |     | NULL    |       |
+| mark4  | int(11)     | YES  |     | NULL    |       |
+| mark5  | int(11)     | YES  |     | NULL    |       |
+| mark6  | int(11)     | YES  |     | NULL    |       |
+| grade  | varchar(4)  | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+mysql> INSERT INTO student VALUES (1, 'Turing', 90, 90, 90, 92, 85, 100), (2, 'Tim', 80, 20, 100, 70, 50, 90), (3, 'Alan', 100, 100, 98, 90, 100, 89), (4, 'Alan', 60, 60, 50, 60, 20, 60), (5, 'Paul', 30, 32, 95, 100, 50, 60), (6, 'Boy', 10, 12, 11, 10, 50, 3);
+Query OK, 6 rows affected (0.04 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM student;
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+| rollno | name   | mark1 | mark2 | mark3 | mark4 | mark5 | mark6 | grade |
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+|      1 | Turing |    90 |    90 |    90 |    92 |    85 |   100 | NULL  |
+|      2 | Tim    |    80 |    20 |   100 |    70 |    50 |    90 | NULL  |
+|      3 | Alan   |   100 |   100 |    98 |    90 |   100 |    89 | NULL  |
+|      4 | Alan   |    60 |    60 |    50 |    60 |    20 |    60 | NULL  |
+|      5 | Paul   |    30 |    32 |    95 |   100 |    50 |    60 | NULL  |
+|      6 | Boy    |    10 |    12 |    11 |    10 |    50 |     3 | NULL  |
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+6 rows in set (0.00 sec)
+
+mysql> CREATE PROCEDURE grader (roll INT)
+    -> BEGIN
+    ->     DECLARE done INT DEFAULT 0;
+    ->     DECLARE m1 INT;
+    ->     DECLARE m2 INT;
+    ->     DECLARE m3 INT;
+    ->     DECLARE m4 INT;
+    ->     DECLARE m5 INT;
+    ->     DECLARE m6 INT;
+    ->     DECLARE total INT;
+    ->     DECLARE grade1 VARCHAR(4);
+    ->     DECLARE sname VARCHAR(20);
+    ->     
+    ->     
+    ->     DECLARE cur CURSOR FOR SELECT name, mark1, mark2, mark3, mark4, mark5, mark6 FROM student WHERE rollno = roll;
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->     SET total = 0;
+    ->     
+    ->     OPEN cur;
+    ->     readloop:loop
+    ->         FETCH cur INTO sname, m1, m2, m3, m4, m5, m6;
+    ->         If done = 1 THEN
+    ->             LEAVE readloop;
+    ->         END IF;
+    ->         
+    ->         SET total = m1 + m2 + m3 + m4 + m5 + m6;
+    ->         
+    ->         IF total > 480 THEN
+    ->             SET grade1 = 'A';
+    ->         ELSEIF total > 400 AND total < 480 THEN
+    ->             SET grade1 = 'B+';
+    ->         ELSEIF total > 360 AND total < 400 THEN
+    ->             SET grade1 = 'B';
+    ->         ELSEIF total > 300 AND total < 360 THEN
+    ->             SET grade1 = 'C';
+    ->         ELSE
+    ->             SET grade1 = 'F';
+    ->         END IF;
+    ->         
+    ->         SELECT roll, sname, grade1;
+    ->         
+    ->         UPDATE student SET grade = grade1 WHERE rollno = roll;
+    ->     END loop;
+    ->     CLOSE cur;
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL grader(1);
++------+--------+--------+
+| roll | sname  | grade1 |
++------+--------+--------+
+|    1 | Turing | A      |
++------+--------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CALL grader(2);
++------+-------+--------+
+| roll | sname | grade1 |
++------+-------+--------+
+|    2 | Tim   | B+     |
++------+-------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CALL grader(3);
++------+-------+--------+
+| roll | sname | grade1 |
++------+-------+--------+
+|    3 | Alan  | A      |
++------+-------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> CALL grader(4);
++------+-------+--------+
+| roll | sname | grade1 |
++------+-------+--------+
+|    4 | Alan  | C      |
++------+-------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CALL grader(5);
++------+-------+--------+
+| roll | sname | grade1 |
++------+-------+--------+
+|    5 | Paul  | B      |
++------+-------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CALL grader(6);
++------+-------+--------+
+| roll | sname | grade1 |
++------+-------+--------+
+|    6 | Boy   | F      |
++------+-------+--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SELECT * FROM student;
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+| rollno | name   | mark1 | mark2 | mark3 | mark4 | mark5 | mark6 | grade |
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+|      1 | Turing |    90 |    90 |    90 |    92 |    85 |   100 | A     |
+|      2 | Tim    |    80 |    20 |   100 |    70 |    50 |    90 | B+    |
+|      3 | Alan   |   100 |   100 |    98 |    90 |   100 |    89 | A     |
+|      4 | Alan   |    60 |    60 |    50 |    60 |    20 |    60 | C     |
+|      5 | Paul   |    30 |    32 |    95 |   100 |    50 |    60 | B     |
+|      6 | Boy    |    10 |    12 |    11 |    10 |    50 |     3 | F     |
++--------+--------+-------+-------+-------+-------+-------+-------+-------+
+6 rows in set (0.00 sec)
+

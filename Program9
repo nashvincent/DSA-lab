@@ -1,0 +1,131 @@
+NASH SUBASH VINCENT
+ROLL NO. 59
+
+mysql> USE procedures;
+Database changed
+
+mysql> CREATE TABLE consumer (id INT PRIMARY KEY, name VARCHAR(20), address VARCHAR(20), prev INT, cur INT, unit INT DEFAULT 2);
+Query OK, 0 rows affected (1.10 sec)
+
+mysql> DESCRIBE consumer;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| id      | int(11)     | NO   | PRI | NULL    |       |
+| name    | varchar(20) | YES  |     | NULL    |       |
+| address | varchar(20) | YES  |     | NULL    |       |
+| prev    | int(11)     | YES  |     | NULL    |       |
+| cur     | int(11)     | YES  |     | NULL    |       |
+| month   | int(11)     | YES  |     | NULL    |       |
+| year    | int(11)     | YES  |     | NULL    |       |
+| unit    | int(11)     | YES  |     | 2       |       |
++---------+-------------+------+-----+---------+-------+
+8 rows in set (0.00 sec)
+
+mysql> INSERT INTO consumer VALUES (10, 'Paul', 'ABC road', 500, NULL, NULL, NULL, 2);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO consumer VALUES (12, 'Ryan', 'KSDQWE', 623, NULL, NULL, NULL, 2);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO consumer VALUES (15, 'XI', 'KOCHI', 1000, NULL, NULL, NULL, 2);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> SELECT * FROM consumer;
++----+------+----------+------+------+-------+------+------+
+| id | name | address  | prev | cur  | month | year | unit |
++----+------+----------+------+------+-------+------+------+
+| 10 | Paul | ABC road |  500 | NULL | NULL  | NULL |    2 |
+| 12 | Ryan | KSDQWE   |  623 | NULL | NULL  | NULL |    2 |
+| 15 | XI   | KOCHI    | 1000 | NULL | NULL  | NULL |    2 |
++----+------+----------+------+------+-------+------+------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE PROCEDURE calc (cid INT, cur1 INT)
+    -> BEGIN
+    -> 
+    ->     DECLARE done INT DEFAULT 0;
+    ->     DECLARE lastdate DATE;
+    ->     DECLARE prev1 INT;
+    ->     DECLARE consumed_units INT;
+    ->     DECLARE cost INT;
+    ->     DECLARE cname VARCHAR(20);
+    ->     
+    ->     DECLARE cur CURSOR FOR SELECT id, name, prev FROM consumer WHERE id=cid;
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET DONE = 1;
+    ->     
+    ->     OPEN cur;
+    ->     readloop:loop
+    ->     
+    ->     FETCH cur INTO cid, cname, prev1;
+    ->     IF done = 1 THEN
+    ->         LEAVE readloop;
+    ->     END IF;
+    ->     
+    ->     SET consumed_units = cur1-prev1;
+    ->     SET cost = consumed_units*2;
+    ->     SET lastdate =  date_add(curdate(), INTERVAL 10 day);
+    ->     
+    ->     SELECT cid, cname, lastdate, consumed_units, cost;
+    ->     
+    ->     UPDATE consumer SET cur = cur1 WHERE id = cid;
+    ->     UPDATE consumer SET prev = prev1 WHERE id = cid;
+    ->     UPDATE consumer SET month = month(lastdate) WHERE id = cid;
+    ->     UPDATE consumer SET year = year(lastdate) WHERE id = cid;
+    ->     END loop;
+    ->     CLOSE cur;   
+    ->     
+    -> END//
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> SELECT * FROM consumer;
+    -> //
++----+------+----------+------+------+-------+------+------+
+| id | name | address  | prev | cur  | month | year | unit |
++----+------+----------+------+------+-------+------+------+
+| 10 | Paul | ABC road |  500 | NULL |  NULL | NULL |    2 |
+| 12 | Ryan | KSDQWE   |  623 | NULL |  NULL | NULL |    2 |
+| 15 | XI   | KOCHI    | 1000 | NULL |  NULL | NULL |    2 |
++----+------+----------+------+------+-------+------+------+
+3 rows in set (0.00 sec)
+
+mysql> CALL calc(12, 1500)//
++------+-------+------------+----------------+------+
+| cid  | cname | lastdate   | consumed_units | cost |
++------+-------+------------+----------------+------+
+|   12 | Ryan  | 2019-03-31 |            877 | 1754 |
++------+-------+------------+----------------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> CALL calc(10, 1100)//
++------+-------+------------+----------------+------+
+| cid  | cname | lastdate   | consumed_units | cost |
++------+-------+------------+----------------+------+
+|   10 | Paul  | 2019-03-31 |            600 | 1200 |
++------+-------+------------+----------------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> CALL calc(15, 2300)//
++------+-------+------------+----------------+------+
+| cid  | cname | lastdate   | consumed_units | cost |
++------+-------+------------+----------------+------+
+|   15 | XI    | 2019-03-31 |           1300 | 2600 |
++------+-------+------------+----------------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> SELECT * FROM consumer//
++----+------+----------+------+------+-------+------+------+
+| id | name | address  | prev | cur  | month | year | unit |
++----+------+----------+------+------+-------+------+------+
+| 10 | Paul | ABC road |  500 | 1100 |     3 | 2019 |    2 |
+| 12 | Ryan | KSDQWE   |  623 | 1500 |     3 | 2019 |    2 |
+| 15 | XI   | KOCHI    | 1000 | 2300 |     3 | 2019 |    2 |
++----+------+----------+------+------+-------+------+------+
+3 rows in set (0.00 sec)
+
