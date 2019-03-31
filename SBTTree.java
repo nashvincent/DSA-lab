@@ -23,7 +23,7 @@ class SBTTClass {
     public void insert(int data) {
         Node new1 = new Node(data);
 
-        if (!root) {
+        if (root == null) {
             root = new1;
         }
 
@@ -31,20 +31,21 @@ class SBTTClass {
             Node cur = root;
             Node prev = null;
 
-            while (True) {
+            while (true) {
                 prev = cur;
-                if (data < cur.data)
-                    cur = cur.left;
-                    if (!cur) {
-                        prev.left = new1;
-                        new1.rthread = true;
-                        new1.rchild = prev;
-                        return;
+                if (data < cur.data) {
+                        cur = cur.lchild;
+                        if (cur == null) {
+                            prev.lchild = new1;
+                            new1.rthread = true;
+                            new1.rchild = prev;
+                            return;
+                        }
                     }
                 else {
                     if (!cur.rthread) {
-                        cur = cur.right;
-                        if (!cur) {
+                        cur = cur.rchild;
+                        if (cur == null) {
                             prev.rchild = new1;
                             return;
                         }
@@ -69,25 +70,25 @@ class SBTTClass {
 
         do {
             q = null;
-            while (p) {
+            while (p != null) {
                 q = p;
                 p = p.lchild;
             }
             
-            if (q) {
+            if (q != null) {
                 q.displayNode();
                 p = q.rchild;
-                while (q.rthread && p) {
+                while (q.rthread && p != null) {
                     p.displayNode();
                     q = p;
                     p = q.rchild;
                 }
             }
-        } while (q);
+        } while (q != null);
     }
 }
 
-public class SBTTree {
+public class Main {
     public static void main (String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -98,6 +99,6 @@ public class SBTTree {
         tree.insert(25);
         tree.insert(7);
         tree.insert(99);
+        tree.inorder(tree.root);
     }
 }
-
