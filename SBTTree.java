@@ -93,12 +93,16 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         SBTTClass tree = new SBTTClass();
-
-        tree.insert(100);
-        tree.insert(50);
-        tree.insert(25);
-        tree.insert(7);
-        tree.insert(99);
+        
+        System.out.println("Enter the number of elements to be added: ");
+        int n = Integer.parseInt(br.readLine());
+        
+        for (int i = 0; i < n; i++) {
+            System.out.println("Enter the element: ");
+            int temp = Integer.parseInt(br.readLine());
+            
+            tree.insert(temp);
+        }
         tree.inorder(tree.root);
     }
 }
