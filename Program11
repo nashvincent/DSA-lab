@@ -1,0 +1,80 @@
+mysql> CREATE DATABASE accounts;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> USE accounts;
+Database changed
+mysql> CREATE TABLE account (accno INT PRIMARY KEY, name VARCHAR(20), balance INT);
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> DESCRIBE account;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| accno   | int(11)     | NO   | PRI | NULL    |       |
+| name    | varchar(20) | YES  |     | NULL    |       |
+| balance | int(11)     | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE TABLE transactions (accno INT, type VARCHAR(20), date DATE, amount INT, FOREIGN KEY (accno) references account(accno));
+Query OK, 0 rows affected (0.28 sec)
+
+mysql> DESCRIBE transactions;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| accno  | int(11)     | YES  | MUL | NULL    |       |
+| type   | varchar(20) | YES  |     | NULL    |       |
+| date   | date        | YES  |     | NULL    |       |
+| amount | int(11)     | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> INSERT INTO account VALUES (101, 'Paul', 15000), (102, 'Irving', 20000), (110, 'Mat', 50000);
+Query OK, 3 rows affected (0.03 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM account;
++-------+--------+---------+
+| accno | name   | balance |
++-------+--------+---------+
+|   101 | Paul   |   15000 |
+|   102 | Irving |   20000 |
+|   110 | Mat    |   50000 |
++-------+--------+---------+
+3 rows in set (0.00 sec)
+
+mysql> delimiter //
+mysql> CREATE TRIGGER BalanceUpdater AFTER INSERT ON transactions FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.type = 'withdraw' THEN
+    ->         UPDATE account SET balance = balance - NEW.amount WHERE account.accno = NEW.accno;
+    ->     ELSEIF NEW.type = 'deposit' THEN
+    ->         UPDATE account SET balance = balance + NEW.amount WHERE account.accno = NEW.accno;
+    ->     END IF;
+    -> END//
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> delimiter ;
+
+mysql> INSERT INTO transactions VALUES (101, 'withdraw',NOW(), 5000);
+Query OK, 1 row affected, 1 warning (0.08 sec)
+
+mysql> INSERT INTO transactions VALUES (101, 'withdraw','2019-02-10', 5000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO transactions VALUES (102, 'deposit','2019-01-11', 5000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO transactions VALUES (110, 'deposit','2019-10-21', 5000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM account;
++-------+--------+---------+
+| accno | name   | balance |
++-------+--------+---------+
+|   101 | Paul   |    5000 |
+|   102 | Irving |   25000 |
+|   110 | Mat    |   55000 |
++-------+--------+---------+
+3 rows in set (0.00 sec)
