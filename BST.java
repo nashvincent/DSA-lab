@@ -74,7 +74,7 @@ class BinarySearchTree {
         if (root1 == null) 
             return;
         display(root1.lchild);
-        root1.displayRank();
+        root1.displayAll();
         display(root1.rchild);
     }
 }
