@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Stack;
 
 class Node {
     public int data;
@@ -50,18 +51,24 @@ class BinarySearchTree {
     }
 
     public void inorderRecursion(Node root1) {
+        if (root1 == null) 
+            return;
         inorderRecursion(root1.lchild);
         root1.displayNode();
         inorderRecursion(root1.rchild);
     }
 
     public void preorderRecursion(Node root1) {
+        if (root1 == null) 
+            return;
         root1.displayNode();
         preorderRecursion(root1.lchild);
         preorderRecursion(root1.rchild);
     }
 
     public void postorderRecursion(Node root1) {
+        if (root1 == null) 
+            return;
         postorderRecursion(root1.lchild);
         postorderRecursion(root1.rchild);
         root1.displayNode();
@@ -69,16 +76,70 @@ class BinarySearchTree {
 
     public void inorder(Node root1) {
         Node p = root1;
-        Stack s = new Stack(20);
+        Stack<Node> s = new Stack<Node>();
 
-        while (p != null) {
-            s.push(p);
-            p = p.lchild;
+        do {
+            while (p != null) {
+                s.push(p);
+                p = p.lchild;
+            }
+
+            if (!s.empty()) {
+                p = s.pop();
+                p.displayNode();
+                p = p.rchild;
+            }
+        } while(!s.empty() || p != null);
+    }
+
+    public void preoder(Node root1) {
+        Stack<Node> s = new Stack<Node>();
+        s.push(root1);
+
+        while (!s.empty()) {
+            Node temp = s.pop();
+            temp.displayNode();
+
+            if (temp.rchild != null)
+                s.push(temp.rchild);
+            if (temp.lchild != null)
+                s.push(temp.lchild);
         }
+    }
 
-        if (!s.isEmpty) {
-            // TO DO
-        }
+    public void postorder(Node root1) {
+        // TODO
+    }
+}
 
+class BST {
+    public static void main (String args[]) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Input the number of elements :");
+        int n = Integer.parseInt(br.readLine());
+        BinarySearchTree tree = new BinarySearchTree();
+
+        System.out.println("Input the elements :");
+        for (int i = 0; i < n; i++)
+            tree.insert(Integer.parseInt(br.readLine()));
+
+        System.out.println("Inorder using recursion: ");
+        tree.inorderRecursion(tree.root);
+
+        System.out.println("\nPreorder using recursion: ");
+        tree.preorderRecursion(tree.root);
+
+        System.out.println("\nPostorder using recursion: ");
+        tree.postorderRecursion(tree.root);
+        
+        System.out.println("\nInorder without recursion: ");
+        tree.inorder(tree.root);
+
+        System.out.println("\nPreorder without recursion: ");
+        tree.preoder(tree.root);
+
+        System.out.println("\nPostorder without recursion: ");
+        tree.postorder(tree.root);
     }
 }
