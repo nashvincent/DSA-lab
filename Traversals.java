@@ -108,7 +108,27 @@ class BinarySearchTree {
     }
 
     public void postorder(Node root1) {
-        // TODO
+        Stack<Node> s1 = new Stack<Node>(); 
+        Stack<Node> s2 = new Stack<Node>(); 
+  
+        if (root1 == null) 
+            return; 
+  
+        s1.push(root1);  
+        while (!s1.isEmpty()) { 
+
+            Node temp = s1.pop(); 
+            s2.push(temp); 
+
+            if (temp.lchild != null) 
+                s1.push(temp.lchild); 
+            if (temp.rchild != null) 
+                s1.push(temp.rchild); 
+        } 
+        while (!s2.isEmpty()) { 
+            Node temp = s2.pop(); 
+            System.out.print(temp.data + " ");  
+        } 
     }
 }
 
