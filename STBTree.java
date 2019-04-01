@@ -17,7 +17,7 @@ class Node {
     }
 }
 
-class SBTTClass {
+class STBTClass {
     Node root;
 
     public void insert(int data) {
@@ -88,11 +88,11 @@ class SBTTClass {
     }
 }
 
-public class SBTTree {
+public class STBTree {
     public static void main (String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        SBTTClass tree = new SBTTClass();
+        STBTClass tree = new STBTClass();
         
         System.out.println("Enter the number of elements to be added: ");
         int n = Integer.parseInt(br.readLine());
