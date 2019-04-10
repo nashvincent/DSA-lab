@@ -1,0 +1,80 @@
+CREATE PROCEDURE Ratio ()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    
+    DECLARE yr INT;
+    DECLARE final_year INT;
+    DECLARE mc INT;
+    DECLARE fc INT;
+    DECLARE temp INT;
+    DECLARE ratio INT;
+    SET ratio = 0;
+    
+    DECLARE cur CURSOR FOR SELECT year, male_count, female_count FROM State_Info;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    
+    OPEN cur;
+    
+    readloop:loop
+        FETCH cur INTO yr, mc, fc,;
+        
+        IF done = 1 THEN
+            LEAVE readloop
+        END IF;
+        
+        SET temp = fc / mc;
+        IF temp > ratio THEN
+            SET ratio = temp;
+            SET final_year = yr;
+        END IF;
+            
+    END LOOP;
+    SELECT final_year;
+    
+END//
+
+----------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE MAX_DATA()
+BEGIN
+    SELECT ToUser FROM DataTransferDetails WHERE ((FromUser = A) AND 
+        (DataSent IN (SELECT max(DataSent) FROM DataTransferDetails WHERE FromUser = A);
+        
+    SELECT FromUser FROM DataTransferDetails WHERE (ToUser = A) AND 
+        DataSent IN (SELECT max(DataSent) FROM DataTransferDetails WHERE ToUser = A);
+END//
+
+----------------------------------------------------------------------------------------------------------
+
+CREATE PROCEDURE deliver ()
+BEGIN 
+    DECLARE done INT DEFAULT 0;
+    DECLARE OrderID INT;
+    DECLARE itemID INT;
+    DECLARE qty INT;
+    DECLARE status VARCHAR(20);
+    
+    DECLARE t1 INT;
+        
+    DECLARE cur CURSOR FOR SELECT PID, ITID, quantity, status FROM User_order;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    
+    OPEN cur;
+    
+    readloop:loop
+        FETCH cur INTO OrderID, itemID, qty, status1;
+        
+        IF done = 1 THEN
+            LEAVE readloop;
+        END IF;
+    
+        SELECT Item_Quantity INTO t1 FROM Item_Master WHERE ITID = ItemID;    
+        IF status = 'Booked' THEN
+            IF qty > t1 THEN
+                UPDATE Item_Master SET Item_Quantity = Item_Quantity - qty WHERE ITID = ItemID;
+                UPDATE User_Order SET status = 'Shipped' WHERE PID = OrderID;
+            ELSE
+                UPDATE Stock_Update SET Quantity = Quantity + qty WHERE ITID = ItemID;
+            END IF;
+        END IF;
+    END LOOP;
+END//
