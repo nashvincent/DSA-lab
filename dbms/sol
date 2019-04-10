@@ -78,3 +78,39 @@ BEGIN
         END IF;
     END LOOP;
 END//
+
+----------------------------------------------------------------------------------------------------------
+################################################## TODO ##################################################
+CREATE PROCEDURE calc()
+BEGIN
+    CREATE TEMPORARY TABLE items AS (SELECT SlNo, month(Date), Quantity, UnitAmout FROM Item_Purchase ORDER BY month(Date));
+    CREATE TEMPORARY TABLE income AS (SELECT Description, month(Date), Amount FROM TotalIncome ORDER BY month(Date))
+
+    CREATE TEMPORARY TABLE temp1 (month INT, Add INT DEFAULT 0, Subtract INT DEFAULT 0);
+
+    INSERT INTO temp1 Month ((SELECT DISTINCT month(Date) FROM items) UNION (SELECT DISTINCT month(Date) FROM income));
+    INSERT INTO temp1 Subtract ((SELECT Quantity*UnitAmount FROM items WHERE temp1.Month = items.date));
+
+    DECLARE desc VARCHAR(20);
+    DECLARE mnth INT;
+    DECLARE amt INT;
+    DECLARE done INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT Description, month(Date), Amount;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+    readloop:loop
+        FETCH cur INTO desc, mnth, amt;
+        IF done = 1 THEN
+            LEAVE readloop;
+        END IF;
+
+        IF desc = 'Salary' THEN
+            UPDATE temp1 SET Add = Add + amt WHERE month = mnth;
+        ELSEIF desc = 'Rent' THEN
+            UPDATE temp1 SET Subtract = Subtract + amt WHERE month = month;
+        END IF;
+    END LOOP;
+    CLOSE cur;
+END//
