@@ -10,7 +10,7 @@
 int main (int argc, char *argv[]) 
 {
 	int pipefd[2];	// File descriptor of pipe 
-	pid_t pid;		// Process ID
+	pid_t pid;	// Process ID
 	int mark[MAX_SUBJECTS];
 	
 	if (pipe(pipefd) == -1)
@@ -43,10 +43,10 @@ int main (int argc, char *argv[])
 		close(pipefd[0]);	// Closes the unused read end of the pipe
 		write(pipefd[1], mark, sizeof(mark)/sizeof(int));
 		close(pipefd[1]);
-
 			//printf("Parent waiting for child process to complete\n");
 		wait(NULL);
 		printf ("Parent process terminating\n");
+		
 		/*
 		char result;
 		read(pipefd[0], &result, 1);
@@ -55,20 +55,18 @@ int main (int argc, char *argv[])
 		else
 			printf("FAIL\n");
 			
-		close(pipefd[0]); */
-			//printf("\nParent ending...\n");		
+		close(pipefd[0]); */		
 	}
 	
 	else 
 	{
 		// Child process block
 		// TODO	
-			printf("Child process recieving marks...\n");
+		printf("Child process recieving marks...\n");
 		close(pipefd[1]);	// Closes the unused write end of the pipe
 		int temp;
 		int sum = 0;
 		for (int j = 0; j <= MAX_SUBJECTS; j++) {
-			
 			read(pipefd[0], &temp, sizeof(int));
 			sum = sum + temp;
 		}
