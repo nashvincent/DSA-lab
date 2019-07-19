@@ -9,7 +9,8 @@
 
 int main (int argc, char *argv[]) 
 {
-	int pipefd[2];	// File descriptor of pipe 
+	int pipefd[2];	// File descriptor of pipe
+	int pipeOutfd[2]; // File descriptor of Outgoing pipe
 	pid_t pid;	// Process ID
 	int mark[MAX_SUBJECTS];
 	
